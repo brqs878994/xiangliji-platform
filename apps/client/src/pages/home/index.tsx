@@ -76,7 +76,7 @@ export default function HomePage() {
       </View>
 
       <View className='main-content'>
-        <View className='topbar'><View className='mobile-brand'><Text className='brand-symbol'>乡</Text><Text>乡里集</Text></View><View className='topbar-copy'><Text className='eyebrow'>城关镇 · 星期四 9月3日</Text><Text className='page-title'>今天，镇上有什么新消息？</Text></View><View className='topbar-actions'><Text className='icon-button'>♧</Text><Text className='avatar small'>李</Text></View></View>
+        <View className='topbar'><View className='mobile-brand'><Text className='brand-symbol'>乡</Text><Text>乡里集</Text></View><View className='topbar-copy'><Text className='eyebrow'>城关镇 · 星期四 9月3日</Text><Text className='page-title'>今天，镇上有什么新消息？</Text></View><View className='topbar-actions'><View className='top-publish-button' onClick={() => go('/pages/publish/index')}><Text className='publish-plus'>＋</Text><Text>发布信息</Text></View><Text className='icon-button'>♧</Text><Text className='avatar small'>李</Text></View></View>
 
         <View className='hero-grid'>
           <View className={`voice-card ${textMode ? 'typing-open' : ''}`}>
