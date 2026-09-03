@@ -26,13 +26,30 @@ export async function getPosts(filters: { townCode?: string; category?: string; 
   try { return (await requestJson<{ items: PlatformPost[] }>(`/posts?${new URLSearchParams(filters).toString()}`)).items; } catch { return fallbackPosts; }
 }
 
-export interface DraftResponse { id: string; title: string; category: string; townCode: string; body: string; status: string; userId: string; }
-export async function createDraft(input: { userId: string; title: string; category: string; townCode: string; body: string }) {
+export interface DraftResponse { id: string; title: string; category: string; townCode: string; body: string; validDays: number; status: string; userId: string; }
+export async function createDraft(input: { userId: string; title: string; category: string; townCode: string; body: string; validDays?: number }) {
   return requestJson<DraftResponse>('/posts/drafts', { method: 'POST', body: JSON.stringify(input) });
+}
+export async function updateDraft(id: string, input: { userId: string; title?: string; category?: string; townCode?: string; body?: string; validDays?: number }) {
+  return requestJson<DraftResponse>(`/posts/drafts/${id}`, { method: 'PATCH', body: JSON.stringify(input) });
 }
 
 export async function submitDraftReview(id: string, userId: string) {
   return requestJson<{ id: string; status: string }>(`/posts/drafts/${id}/submit-review`, { method: 'POST', body: JSON.stringify({ userId, confirmed: true }) });
+}
+
+export interface PostResponse { id: string; postId: string; userId: string; type: 'contact' | 'signup' | 'favorite'; message: string | null; createdAt: string; }
+export async function getResponses(postId: string) {
+  return requestJson<{ items: PostResponse[] }>(`/posts/${postId}/responses`);
+}
+export async function addResponse(postId: string, input: { userId: string; type: PostResponse['type']; message?: string }) {
+  return requestJson<PostResponse>(`/posts/${postId}/responses`, { method: 'POST', body: JSON.stringify(input) });
+}
+export async function removeResponse(postId: string, userId: string, type: PostResponse['type']) {
+  return requestJson<PostResponse>(`/posts/${postId}/responses?${new URLSearchParams({ userId, type }).toString()}`, { method: 'DELETE' });
+}
+export async function toggleFavorite(postId: string, userId: string, saved: boolean) {
+  return saved ? removeResponse(postId, userId, 'favorite') : addResponse(postId, { userId, type: 'favorite' });
 }
 
 export interface PlatformAudit { id: string; draftId: string; status: 'pending' | 'approved' | 'rejected'; reason: string | null; createdAt: string; reviewedAt: string | null; draft: { title: string; category: string; townCode: string; body: string; userId: string } | null; }

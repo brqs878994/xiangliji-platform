@@ -29,14 +29,16 @@ export class InMemoryPlatformRepository implements PlatformRepository {
   getDraft(id: string): DraftRecord | undefined { const draft = this.drafts.get(id); return draft ? { ...draft } : undefined; }
   createDraft(input: { userId: string; title: string; category: string; townCode: string; body: string; validDays?: number }): DraftRecord {
     const now = new Date().toISOString();
-    const record: DraftRecord = { id: `draft-${randomUUID()}`, title: input.title, category: input.category, townCode: input.townCode, body: input.body, missingFields: [], warnings: [], status: 'draft', userId: input.userId, createdAt: now, updatedAt: now };
+    const validDays = Math.min(30, Math.max(1, Math.round(input.validDays || 7)));
+    const record: DraftRecord = { id: `draft-${randomUUID()}`, title: input.title, category: input.category, townCode: input.townCode, body: input.body, missingFields: [], warnings: [], status: 'draft', userId: input.userId, validDays, createdAt: now, updatedAt: now };
     this.drafts.set(record.id, record);
     return { ...record };
   }
-  updateDraft(id: string, userId: string, patch: Partial<Pick<DraftRecord, 'title' | 'category' | 'townCode' | 'body'>>): DraftRecord | undefined {
+  updateDraft(id: string, userId: string, patch: Partial<Pick<DraftRecord, 'title' | 'category' | 'townCode' | 'body' | 'validDays'>>): DraftRecord | undefined {
     const draft = this.drafts.get(id);
     if (!draft || draft.userId !== userId || draft.status !== 'draft') return undefined;
-    Object.assign(draft, patch, { updatedAt: new Date().toISOString() });
+    const normalized = patch.validDays === undefined ? {} : { validDays: Math.min(30, Math.max(1, Math.round(patch.validDays || 7))) };
+    Object.assign(draft, { ...patch, ...normalized }, { updatedAt: new Date().toISOString() });
     return { ...draft };
   }
   submitDraft(id: string, userId: string, confirmed: boolean): AuditRecord {
@@ -59,7 +61,7 @@ export class InMemoryPlatformRepository implements PlatformRepository {
     draft.status = approved ? 'published' : 'rejected';
     if (!approved) return undefined;
     const town = this.towns.find((item) => item.code === draft.townCode);
-    const post: PostRecord = { id: `post-${randomUUID()}`, category: draft.category || '其他', title: draft.title, townCode: draft.townCode || 'chengguan', townName: town?.name || draft.townCode || '城关镇', distanceKm: null, publishedAt: new Date().toISOString(), validUntil: new Date(Date.now() + 7 * 86400000).toISOString(), summary: draft.body.slice(0, 120), responseLabel: null, body: draft.body, status: 'published', ownerId: draft.userId };
+    const post: PostRecord = { id: `post-${randomUUID()}`, category: draft.category || '其他', title: draft.title, townCode: draft.townCode || 'chengguan', townName: town?.name || draft.townCode || '城关镇', distanceKm: null, publishedAt: new Date().toISOString(), validUntil: new Date(Date.now() + draft.validDays * 86400000).toISOString(), summary: draft.body.slice(0, 120), responseLabel: null, body: draft.body, status: 'published', ownerId: draft.userId };
     this.posts.unshift(post);
     return { ...post };
   }
@@ -69,6 +71,12 @@ export class InMemoryPlatformRepository implements PlatformRepository {
     if (exists) return { ...exists };
     const response: ResponseRecord = { id: `response-${randomUUID()}`, postId, userId: input.userId, type: input.type, message: input.message || null, createdAt: new Date().toISOString() };
     this.responses.set(response.id, response); return { ...response };
+  }
+  removeResponse(postId: string, userId: string, type: ResponseRecord['type']): ResponseRecord | undefined {
+    const entry = [...this.responses.entries()].find(([, item]) => item.postId === postId && item.userId === userId && item.type === type);
+    if (!entry) return undefined;
+    this.responses.delete(entry[0]);
+    return { ...entry[1] };
   }
   listResponses(postId: string): ResponseRecord[] { return [...this.responses.values()].filter((item) => item.postId === postId).map((item) => ({ ...item })); }
 }

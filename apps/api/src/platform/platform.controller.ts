@@ -1,7 +1,7 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
 import { InMemoryPlatformRepository } from './in-memory.repository';
 
-interface DraftBody { userId?: string; title?: string; category?: string; townCode?: string; body?: string; confirmed?: boolean; }
+interface DraftBody { userId?: string; title?: string; category?: string; townCode?: string; body?: string; validDays?: number; confirmed?: boolean; }
 interface ResponseBody { userId?: string; type?: 'contact' | 'signup' | 'favorite'; message?: string; }
 
 @Controller()
@@ -31,13 +31,13 @@ export class PlatformController {
     if (!body.userId || !body.title?.trim() || !body.category?.trim() || !body.townCode?.trim() || !body.body?.trim()) {
       throw new HttpException({ code: 'invalid_request', message: 'userId、title、category、townCode、body 均不能为空' }, HttpStatus.BAD_REQUEST);
     }
-    return this.repository.createDraft({ userId: body.userId, title: body.title.trim(), category: body.category.trim(), townCode: body.townCode.trim(), body: body.body.trim() });
+    return this.repository.createDraft({ userId: body.userId, title: body.title.trim(), category: body.category.trim(), townCode: body.townCode.trim(), body: body.body.trim(), validDays: body.validDays });
   }
 
   @Patch('posts/drafts/:id')
   updateDraft(@Param('id') id: string, @Body() body: DraftBody) {
     if (!body.userId) throw new HttpException({ code: 'login_required', message: '登录后才能编辑草稿' }, HttpStatus.UNAUTHORIZED);
-    const draft = this.repository.updateDraft(id, body.userId, { title: body.title?.trim(), category: body.category?.trim(), townCode: body.townCode?.trim(), body: body.body?.trim() });
+    const draft = this.repository.updateDraft(id, body.userId, { title: body.title?.trim(), category: body.category?.trim(), townCode: body.townCode?.trim(), body: body.body?.trim(), validDays: body.validDays });
     if (!draft) throw new HttpException({ code: 'not_found', message: '草稿不存在或不可编辑' }, HttpStatus.NOT_FOUND);
     return draft;
   }
@@ -91,4 +91,12 @@ export class PlatformController {
 
   @Get('posts/:id/responses')
   listResponses(@Param('id') id: string) { return { items: this.repository.listResponses(id) }; }
+
+  @Delete('posts/:id/responses')
+  removeResponse(@Param('id') id: string, @Query('userId') userId?: string, @Query('type') type?: ResponseBody['type']) {
+    if (!userId || !type) throw new HttpException({ code: 'invalid_request', message: 'userId 和 type 不能为空' }, HttpStatus.BAD_REQUEST);
+    const response = this.repository.removeResponse(id, userId, type);
+    if (!response) throw new HttpException({ code: 'not_found', message: '收藏记录不存在' }, HttpStatus.NOT_FOUND);
+    return response;
+  }
 }
