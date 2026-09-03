@@ -1,0 +1,24 @@
+.ai-page { min-height: 100vh; padding: 24px 18px 28px; background: var(--paper); box-sizing: border-box; }
+.ai-topbar { display: flex; align-items: center; gap: 14px; }
+.back { color: var(--green); font-size: 13px; }
+.ai-title { color: var(--ink); font-family: serif; font-size: 24px; font-weight: 700; }
+.ai-subtitle { display: block; margin-top: 8px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.quick-questions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 18px; }
+.quick-question { min-height: 44px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 6px; color: var(--green); background: var(--paper-warm); font-size: 12px; line-height: 1.45; box-sizing: border-box; }
+.answer-panel { min-height: 260px; margin-top: 16px; padding: 15px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper-warm); }
+.empty { display: block; color: var(--muted); font-size: 13px; }
+.answer { display: block; color: var(--ink); font-size: 14px; line-height: 1.7; }
+.result-card { margin-top: 12px; padding: 13px; border-left: 3px solid var(--yellow); background: #fffdf6; }
+.result-category { display: block; color: var(--orange); font-size: 11px; font-weight: 700; }
+.result-title { display: block; margin-top: 5px; color: var(--ink); font-size: 14px; font-weight: 800; }
+.result-meta, .result-summary { display: block; margin-top: 6px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.action-card { display: grid; gap: 10px; margin-top: 12px; padding: 13px; border: 1px solid #edb9aa; border-radius: 6px; color: var(--ink); background: var(--orange-soft); font-size: 12px; line-height: 1.5; }
+.login-note { color: var(--orange); font-weight: 700; }
+.action-card button { width: max-content; min-height: 40px; padding: 0 12px; }
+.composer { display: flex; gap: 8px; margin-top: 14px; }
+.composer-input { flex: 1; min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper-warm); font-size: 13px; }
+.composer-button { min-width: 70px; min-height: 44px; color: var(--ink); background: var(--yellow); font-size: 13px; font-weight: 800; }
+@media (min-width: 761px) {
+  .ai-page { width: min(920px, 100%); margin: 0 auto; padding: 46px 34px; }
+}
+

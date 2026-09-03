@@ -1,0 +1,17 @@
+page {
+  --ink: #163732;
+  --ink-deep: #102624;
+  --paper: #f4f5ef;
+  --paper-warm: #fbfaf4;
+  --line: #d8ddd4;
+  --muted: #758078;
+  --green: #2e6e5c;
+  --green-soft: #dfece5;
+  --yellow: #e8b84a;
+  --orange: #e76445;
+  --teal: #5d8d7e;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", sans-serif;
+}
+

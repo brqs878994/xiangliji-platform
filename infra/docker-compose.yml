@@ -1,0 +1,35 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: xiangliji
+      MYSQL_USER: xiangliji
+      MYSQL_PASSWORD: xiangliji
+      MYSQL_ROOT_PASSWORD: local-root-password
+    ports:
+      - "3306:3306"
+    volumes:
+      - xiangliji-mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -plocal-root-password"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "512mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - xiangliji-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  xiangliji-mysql:
+  xiangliji-redis:
+
