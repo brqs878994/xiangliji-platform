@@ -1,8 +1,9 @@
 import { Image, Text, Textarea, View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './home.scss';
 import marketBasket from '../../assets/market-basket.jpg';
+import { getPosts } from '../../services/platform';
 
 const categories = [
   { title: '助农供求', subtitle: '卖货 · 找收', icon: '穗', tone: 'green' },
@@ -12,7 +13,7 @@ const categories = [
   { title: '约局互动', subtitle: '球局 · 拼车', icon: '局', tone: 'teal' },
 ];
 
-const posts = [
+const initialPosts = [
   { type: '助农供求', age: '同镇 · 12 分钟前', title: '收土鸡蛋，长期要货', summary: '每周稳定收 200 斤，个头均匀，城关镇可上门看货。', price: '1.20', unit: '元/斤', response: '2 人已联系', label: '收', tone: 'market', image: marketBasket },
   { type: '二手市场', age: '邻村 · 1 小时前', title: '旧打谷机，正常使用', summary: '有使用痕迹，配件齐全，王家镇自提。', price: '1200', unit: '元 · 可议价', response: '1 人已收藏', label: '卖', tone: 'tools' },
   { type: '日结零工', age: '城关镇 · 2 小时前', title: '下午装车，缺 5 人', summary: '今天 14:00 集合，做完结算，管一顿午饭。', price: '260', unit: '元/天', response: '还缺 3 人', label: '招', tone: 'job' },
@@ -27,6 +28,24 @@ export default function HomePage() {
   const [query, setQuery] = useState('');
   const [recording, setRecording] = useState(false);
   const [notice, setNotice] = useState('');
+  const [posts, setPosts] = useState(initialPosts);
+
+  useEffect(() => {
+    void getPosts({ townCode: 'chengguan' }).then((items) => {
+      setPosts(items.slice(0, 3).map((post, index) => ({
+        type: post.category,
+        age: `${post.townName} · ${index === 0 ? '刚刚' : `${index + 1} 小时前`}`,
+        title: post.title,
+        summary: post.summary,
+        price: index === 0 ? '1.20' : index === 1 ? '260' : '1200',
+        unit: index === 0 ? '元/斤' : index === 1 ? '元/天' : '元 · 可议价',
+        response: post.responseLabel || '可联系',
+        label: index === 0 ? '收' : index === 1 ? '招' : '卖',
+        tone: index === 0 ? 'market' : index === 1 ? 'job' : 'tools',
+        image: index === 0 ? marketBasket : undefined,
+      })));
+    }).catch(() => setPosts(initialPosts));
+  }, []);
 
   function showNotice(message: string) {
     setNotice(message);
@@ -51,6 +70,7 @@ export default function HomePage() {
           <View className='rail-item' onClick={() => go('/pages/explore/index')}><Text className='icon'>◌</Text><Text>逛一逛</Text></View>
           <View className='rail-item' onClick={() => showNotice('消息中心正在接入')}><Text className='icon'>◍</Text><Text>消息</Text><Text className='badge'>2</Text></View>
           <View className='rail-item' onClick={() => showNotice('个人中心正在接入')}><Text className='icon'>◉</Text><Text>我的</Text></View>
+          <View className='rail-item' onClick={() => go('/pages/admin/index')}><Text className='icon'>⚙</Text><Text>运营台</Text></View>
         </View>
         <View className='rail-footer'><View className='rail-help' onClick={() => showNotice('不交押金，不扫陌生码')}><Text className='icon'>♢</Text><Text>防骗指南</Text></View><View className='rail-user'><Text className='avatar'>李</Text><View><Text className='user-name'>李叔</Text><Text className='user-sub'>已认证发布者</Text></View></View></View>
       </View>

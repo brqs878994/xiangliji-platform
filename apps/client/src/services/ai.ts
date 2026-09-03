@@ -18,8 +18,9 @@ export async function streamChat(
   input: ChatRequest,
   onEvent: (event: ChatEvent) => void,
 ): Promise<void> {
-  const base = process.env.TARO_APP_API_BASE_URL || 'http://127.0.0.1:3000';
-  if (process.env.TARO_ENV === 'h5') {
+  const runtimeEnv = typeof process !== 'undefined' ? process.env : undefined;
+  const base = runtimeEnv?.TARO_APP_API_BASE_URL || 'http://127.0.0.1:3000';
+  if (typeof window !== 'undefined' || runtimeEnv?.TARO_ENV === 'h5') {
     const response = await fetch(base + '/ai/chat/stream', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
@@ -59,4 +60,3 @@ export async function streamChat(
     if (event) onEvent(event);
   });
 }
-

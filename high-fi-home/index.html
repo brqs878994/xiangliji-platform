@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#123B32" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <title>乡里集 · 县域生活信息交换服务平台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="side-rail" aria-label="主导航">
+        <div class="brand-mark">
+          <span class="brand-symbol">乡</span>
+          <div>
+            <strong>乡里集</strong>
+            <small>县域生活交换站</small>
+          </div>
+        </div>
+        <div class="rail-location"><i data-lucide="map-pin"></i><span>城关镇</span><i data-lucide="chevron-down"></i></div>
+        <nav class="rail-nav">
+          <button class="rail-item active" data-view="home"><i data-lucide="house"></i><span>首页</span></button>
+          <button class="rail-item" data-view="explore"><i data-lucide="compass"></i><span>逛一逛</span></button>
+          <button class="rail-item" data-view="messages"><i data-lucide="message-circle"></i><span>消息</span><b>2</b></button>
+          <button class="rail-item" data-view="mine"><i data-lucide="user-round"></i><span>我的</span></button>
+        </nav>
+        <div class="rail-footer">
+          <button class="rail-help"><i data-lucide="shield-check"></i><span>防骗指南</span></button>
+          <div class="rail-user"><div class="avatar">李</div><div><strong>李叔</strong><small>已认证发布者</small></div><i data-lucide="more-horizontal"></i></div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div class="mobile-brand"><span class="brand-symbol">乡</span><strong>乡里集</strong></div>
+          <div class="topbar-copy"><span class="eyebrow" id="pageEyebrow">城关镇 · 星期三 9月2日</span><h1 id="pageTitle">今天，镇上有什么新消息？</h1></div>
+          <div class="topbar-actions">
+            <button class="icon-button" aria-label="打开通知"><i data-lucide="bell"></i><span class="notification-dot"></span></button>
+            <button class="profile-chip"><span class="avatar small">李</span><span class="desktop-only">李叔</span><i data-lucide="chevron-down" class="desktop-only"></i></button>
+          </div>
+        </header>
+
+        <section class="view-panel active" id="view-home" data-panel="home" aria-label="首页">
+        <section class="hero-grid" aria-label="语音入口和本镇脉搏">
+          <div class="voice-card" id="voiceCard">
+            <div class="voice-card-top">
+              <div class="live-label"><span class="live-dot"></span>本镇信号在线</div>
+              <div class="voice-mode-actions">
+                <span class="voice-hint">说一句，帮你找或发</span>
+                <button class="mode-toggle" id="toggleTypeMode" type="button" aria-pressed="false"><i data-lucide="keyboard"></i><span>改用文字输入</span></button>
+              </div>
+            </div>
+            <div class="voice-main" id="voiceMain">
+              <div class="waveform" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <button class="record-button" id="recordButton" aria-label="按住说话"><span class="record-core"><i data-lucide="mic"></i></span><span class="record-label">按住说话</span></button>
+              <p class="record-status" id="recordStatus">例如：有没有人收玉米？</p>
+            </div>
+            <div class="typing-panel" id="typingPanel" hidden>
+              <div class="typing-panel-head"><div><span class="section-kicker">文字输入</span><strong>写下你想找或想发布的内容</strong></div></div>
+              <form class="typing-search" id="typeSearch" role="search">
+                <textarea id="typeInput" rows="4" autocomplete="off" placeholder="例如：城关镇有没有人收玉米？或者：下午找 2 个装车工" aria-label="输入想找或想发布的内容"></textarea>
+                <div class="typing-submit-row"><span class="typing-count" id="typingCount">0 / 200</span><button type="submit"><span>开始查找</span><i data-lucide="arrow-up-right"></i></button></div>
+              </form>
+              <p class="typing-status" id="typingStatus">内容越完整，AI 越容易帮你找到合适的信息。</p>
+              <div class="search-hints" aria-label="本镇热搜">
+                <span>本镇刚刚有人在找</span>
+                <button type="button" data-query="收玉米">收玉米</button>
+                <button type="button" data-query="下午装车">下午装车</button>
+                <button type="button" data-query="二手农机">二手农机</button>
+              </div>
+              <div class="search-fallback" id="searchFallback" hidden>
+                <span><i data-lucide="circle-help"></i> 暂时没找到？</span>
+                <button type="button" id="publishFromSearch">帮我发布</button>
+              </div>
+            </div>
+            <div class="voice-footer">
+              <span><i data-lucide="sparkles"></i> AI 会自动整理成信息</span><button class="text-button ai-link" data-view="ai">问问 AI <i data-lucide="arrow-up-right"></i></button>
+            </div>
+          </div>
+          <div class="pulse-card">
+            <div class="pulse-heading"><span>本镇脉搏</span><button class="icon-button subtle" aria-label="查看本镇数据"><i data-lucide="arrow-up-right"></i></button></div>
+            <div class="pulse-number"><strong>28</strong><span>条新信息</span></div>
+            <div class="pulse-stats"><div><span class="stat-dot yellow"></span><strong>6</strong><small>正在招人</small></div><div><span class="stat-dot orange"></span><strong>4</strong><small>刚刚有人响应</small></div><div><span class="stat-dot teal"></span><strong>12</strong><small>同镇新发布</small></div></div>
+            <div class="mini-signal"><div class="mini-signal-line"><span style="height: 12px"></span><span style="height: 24px"></span><span style="height: 16px"></span><span style="height: 34px"></span><span style="height: 22px"></span><span style="height: 42px"></span><span style="height: 30px"></span><span style="height: 50px"></span><span style="height: 38px"></span><span style="height: 46px"></span><span style="height: 28px"></span><span style="height: 58px"></span><span style="height: 34px"></span><span style="height: 44px"></span><span style="height: 26px"></span></div><div class="signal-axis"><span>06:00</span><span>现在</span></div></div>
+          </div>
+        </section>
+
+        <section class="trust-strip"><i data-lucide="shield-check"></i><span>平台只做信息交流，不参与交易、不担保资金</span><button class="text-button" id="safetyButton">了解安全规则 <i data-lucide="arrow-up-right"></i></button></section>
+
+        <section class="category-section" aria-label="快速进入类目">
+          <div class="section-heading"><div><span class="section-kicker">按你要办的事</span><h2>现在想做什么？</h2></div><button class="ghost-link" data-view="explore">看全部 <i data-lucide="arrow-right"></i></button></div>
+          <div class="category-grid">
+            <button class="category-card category-green" data-category="助农"><span class="category-icon"><i data-lucide="wheat"></i></span><span><strong>助农供求</strong><small>卖货 · 找收</small></span><i data-lucide="arrow-up-right" class="category-arrow"></i></button>
+            <button class="category-card category-orange" data-category="招工"><span class="category-icon"><i data-lucide="hard-hat"></i></span><span><strong>求职招工</strong><small>找活 · 找人</small></span><i data-lucide="arrow-up-right" class="category-arrow"></i></button>
+            <button class="category-card category-yellow" data-category="任务"><span class="category-icon"><i data-lucide="hand-helping"></i></span><span><strong>有偿任务</strong><small>跑腿 · 代办</small></span><i data-lucide="arrow-up-right" class="category-arrow"></i></button>
+            <button class="category-card category-ink" data-category="二手"><span class="category-icon"><i data-lucide="repeat-2"></i></span><span><strong>二手市场</strong><small>闲置 · 农机</small></span><i data-lucide="arrow-up-right" class="category-arrow"></i></button>
+            <button class="category-card category-teal" data-category="约局"><span class="category-icon"><i data-lucide="trophy"></i></span><span><strong>约局互动</strong><small>球局 · 拼车</small></span><i data-lucide="arrow-up-right" class="category-arrow"></i></button>
+          </div>
+        </section>
+
+        <section class="feed-section" aria-label="本镇最新信息">
+          <div class="section-heading feed-heading"><div><span class="section-kicker">刚刚发生</span><h2>本镇最新</h2></div><div class="feed-controls"><button class="filter-chip active">综合</button><button class="filter-chip">最新</button><button class="filter-chip">最近</button></div></div>
+          <div class="feed-layout">
+            <div class="feed-list" id="feedList">
+              <article class="post-card featured-post">
+                <div class="post-image image-market"><img src="https://data.travelchinaguide.com/tour/image/2807/240625082102.jpg" alt="农村集市中装满蔬菜的竹篮" /><span class="post-label label-buy">收</span><button class="save-button" aria-label="收藏信息"><i data-lucide="bookmark"></i></button></div>
+                <div class="post-body"><div class="post-meta"><span>助农供求</span><span>同镇 · 12 分钟前</span></div><h3>收土鸡蛋，长期要货</h3><p>每周稳定收 200 斤，个头均匀，城关镇可上门看货。</p><div class="post-bottom"><div><strong class="post-price">1.20 <small>元/斤</small></strong><span class="response-note"><i data-lucide="message-circle-more"></i> 2 人已联系</span></div><button class="contact-button" data-action="联系收购商">联系他 <i data-lucide="arrow-up-right"></i></button></div></div>
+              </article>
+              <article class="post-card compact-post">
+                <div class="post-image image-tools"><div class="image-placeholder"><i data-lucide="wrench"></i><span>农机具</span></div><span class="post-label label-sell">卖</span><button class="save-button" aria-label="收藏信息"><i data-lucide="bookmark"></i></button></div>
+                <div class="post-body"><div class="post-meta"><span>二手市场</span><span>邻村 · 1 小时前</span></div><h3>旧打谷机，正常使用</h3><p>有使用痕迹，配件齐全，王家镇自提。</p><div class="post-bottom"><div><strong class="post-price">1200 <small>元 · 可议价</small></strong><span class="response-note"><i data-lucide="bookmark-check"></i> 1 人已收藏</span></div><button class="contact-button" data-action="联系卖家">联系他 <i data-lucide="arrow-up-right"></i></button></div></div>
+              </article>
+              <article class="post-card compact-post">
+                <div class="post-image image-job"><div class="job-poster"><span>下午急招</span><strong>装车 5 人</strong><small>260 元/天</small></div><span class="post-label label-hire">招</span><button class="save-button" aria-label="收藏信息"><i data-lucide="bookmark"></i></button></div>
+                <div class="post-body"><div class="post-meta"><span>日结零工</span><span>城关镇 · 2 小时前</span></div><h3>下午装车，缺 5 人</h3><p>今天 14:00 集合，做完结算，管一顿午饭。</p><div class="post-bottom"><div><strong class="post-price">260 <small>元/天</small></strong><span class="response-note urgent"><i data-lucide="users-round"></i> 还缺 3 人</span></div><button class="contact-button" data-action="报名装车">我要报名 <i data-lucide="arrow-up-right"></i></button></div></div>
+              </article>
+            </div>
+            <aside class="right-rail">
+              <div class="side-card scene-card"><div class="side-card-header"><span class="section-kicker">今日提醒</span><i data-lucide="sun-medium"></i></div><h3>赶集日快到了</h3><p>本周六城关集市，已有 12 条助农信息。现在发布，周末更容易被看见。</p><button class="outline-button" data-action="发布赶集信息">发布一条信息 <i data-lucide="arrow-up-right"></i></button></div>
+              <div class="side-card trust-card"><div class="side-card-header"><span class="section-kicker">先看一眼</span><i data-lucide="shield-alert"></i></div><h3>遇到“先交钱”怎么办？</h3><ul><li>不交押金、保证金、服装费</li><li>不扫陌生二维码，不点陌生链接</li><li>平台客服不会索要验证码</li></ul><button class="ghost-link" id="guideButton">打开防骗指南 <i data-lucide="arrow-right"></i></button></div>
+            </aside>
+          </div>
+        </section>
+        </section>
+
+        <section class="view-panel" id="view-explore" data-panel="explore" aria-label="逛一逛">
+          <div class="page-intro"><div><span class="section-kicker">本镇信息场</span><h2>逛一逛</h2><p>先看离你近的，再看刚刚发生的。</p></div><button class="solid-button" data-view="publish"><i data-lucide="plus"></i>发布信息</button></div>
+          <div class="explore-toolbar"><label class="explore-search"><i data-lucide="search"></i><input id="exploreSearch" type="search" placeholder="搜收购、招工、农机或关键词" aria-label="搜索本镇信息" /><button aria-label="提交搜索"><i data-lucide="arrow-up-right"></i></button></label><div class="explore-filters"><button class="filter-chip active">全部</button><button class="filter-chip">助农</button><button class="filter-chip">招工</button><button class="filter-chip">二手</button><button class="filter-chip">约局</button></div></div>
+          <div class="explore-signal"><div><span class="live-dot"></span><strong>本镇热搜</strong><span>收玉米</span><span>下午装车</span><span>二手农机</span></div><button class="text-button" data-view="messages">看回应 <i data-lucide="arrow-up-right"></i></button></div>
+          <div class="explore-layout"><div class="explore-grid">
+            <article class="explore-card explore-card-wide" data-open-detail="eggs"><div class="explore-card-media market-media"><span>助农供求</span><strong>收土鸡蛋，长期要货</strong><small>每周稳定收 200 斤 · 同镇 12 分钟前</small></div><div class="explore-card-body"><div><b>1.20 元/斤</b><span>2 人已联系</span></div><button class="contact-button" data-open-detail="eggs">查看详情 <i data-lucide="arrow-up-right"></i></button></div></article>
+            <article class="explore-card" data-open-detail="job"><div class="explore-card-media job-media"><span>今天 14:00</span><strong>下午装车，缺 5 人</strong><small>日结 260 元 / 天</small></div><div class="explore-card-body"><div><b>还缺 3 人</b><span>城关镇 · 2 小时前</span></div><button class="contact-button" data-open-detail="job">我要报名 <i data-lucide="arrow-up-right"></i></button></div></article>
+            <article class="explore-card" data-open-detail="tractor"><div class="explore-card-media tractor-media"><span>二手市场</span><strong>旧打谷机，正常使用</strong><small>王家镇自提 · 可议价</small></div><div class="explore-card-body"><div><b>1200 元</b><span>1 人已收藏</span></div><button class="contact-button" data-open-detail="tractor">查看详情 <i data-lucide="arrow-up-right"></i></button></div></article>
+            <article class="explore-card"><div class="explore-card-media task-media"><span>有偿任务</span><strong>帮忙把两袋化肥送到村口</strong><small>今天内 · 报酬面议</small></div><div class="explore-card-body"><div><b>待响应</b><span>邻村 · 35 分钟前</span></div><button class="contact-button" data-action="联系发布者">联系他 <i data-lucide="arrow-up-right"></i></button></div></article>
+          </div><aside class="explore-side"><div class="side-card explore-side-card"><span class="section-kicker">今日趋势</span><h3>大家正在找什么</h3><div class="trend-row"><b>01</b><span>收玉米</span><strong>+18%</strong></div><div class="trend-row"><b>02</b><span>日结装车</span><strong>+12%</strong></div><div class="trend-row"><b>03</b><span>二手农机</span><strong>+8%</strong></div><button class="ghost-link" data-view="publish">没有找到？帮我发布 <i data-lucide="arrow-right"></i></button></div><div class="side-card explore-side-card dark-side"><span class="section-kicker">本镇脉搏</span><strong class="side-big-number">28</strong><p>条新信息正在流动</p><div class="signal-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></aside></div>
+        </section>
+
+        <section class="view-panel" id="view-publish" data-panel="publish" aria-label="发布信息">
+          <div class="page-intro publish-intro"><div><span class="section-kicker">一条信息，三步发出</span><h2>把你知道的，告诉同镇的人</h2><p>语音会自动整理，发布前你可以随时修改。</p></div><span class="draft-chip"><i data-lucide="save"></i> 草稿自动保存</span></div>
+          <div class="publish-steps"><span class="active"><b>01</b>说一说</span><i></i><span><b>02</b>核对一下</span><i></i><span><b>03</b>发布结果</span></div>
+          <div class="publish-layout"><div class="publish-capture"><div class="capture-top"><span class="live-label"><span class="live-dot"></span>语音发布</span><span>预计 30 秒完成</span></div><div class="capture-orbit"><div class="capture-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><button class="capture-button" id="publishRecord"><span><i data-lucide="mic"></i></span><b>按住说话</b><small>说清楚“要找谁 / 在哪 / 什么时候”</small></button></div><div class="capture-bottom"><span><i data-lucide="shield-check"></i> 平台只做信息交流，不担保资金</span><button class="mode-toggle light-mode" id="publishTextMode"><i data-lucide="keyboard"></i>改用文字</button></div></div><div class="publish-preview"><div class="preview-head"><span>你会看到这样的草稿</span><span class="status-dot">AI 待整理</span></div><div class="preview-line"><span>分类</span><strong>助农供求 <i data-lucide="chevron-right"></i> 农产品出售</strong></div><div class="preview-line"><span>标题</span><strong>城关镇土鸡蛋，长期要货</strong></div><div class="preview-line"><span>地点</span><strong>城关镇 · 可修改</strong></div><div class="preview-line"><span>有效期</span><strong>7 天 <i data-lucide="chevron-down"></i></strong></div><button class="solid-button wide-action" id="previewDraft"><i data-lucide="sparkles"></i>先看一眼草稿</button><p>未识别的内容会高亮提醒，不会静默发布。</p></div></div>
+          <div class="publish-trust-row"><div><i data-lucide="clock-3"></i><span><b>发出去之后</b>有人收藏、联系或报名，你会马上收到提醒</span></div><div><i data-lucide="image-plus"></i><span><b>补一张图片</b>信息更容易被同镇的人看见</span></div><div><i data-lucide="rotate-ccw"></i><span><b>过期可续期</b>不用重新填写整条信息</span></div></div>
+        </section>
+
+        <section class="view-panel" id="view-detail" data-panel="detail" aria-label="信息详情">
+          <div class="detail-topbar"><button class="back-link" data-view="explore"><i data-lucide="arrow-left"></i>返回逛一逛</button><div><span class="detail-kicker">助农供求 · 同镇</span><span>12 分钟前</span></div><button class="icon-button subtle" aria-label="分享信息"><i data-lucide="share-2"></i></button></div>
+          <div class="detail-layout"><article class="detail-main"><div class="detail-hero-image"><img src="https://data.travelchinaguide.com/tour/image/2807/240625082102.jpg" alt="农村集市中的蔬菜和竹篮" /><span class="post-label label-buy">收</span><span class="hero-location"><i data-lucide="map-pin"></i>城关镇</span></div><div class="detail-content"><div class="detail-title-row"><div><span class="section-kicker">助农供求</span><h2>收土鸡蛋，长期要货</h2></div><button class="save-button saved" aria-label="收藏信息"><i data-lucide="bookmark-check"></i></button></div><div class="detail-price">1.20 <small>元 / 斤</small><span>每周稳定收 200 斤</span></div><p class="detail-copy">个头均匀，品质稳定，城关镇可上门看货。欢迎附近养殖户直接联系，长期合作优先。</p><div class="detail-facts"><div><span>数量</span><strong>约 200 斤 / 周</strong></div><div><span>有效期</span><strong>还有 6 天</strong></div><div><span>响应</span><strong>2 人已联系</strong></div></div><div class="safety-callout"><i data-lucide="shield-check"></i><div><strong>先看一眼安全提醒</strong><p>平台不收定金、不担保资金。见面和交易请自行核实。</p></div><button class="ghost-link" id="detailGuide">查看指南 <i data-lucide="arrow-right"></i></button></div><div class="detail-section"><div class="detail-section-head"><h3>发布者</h3><span>0 次被举报</span></div><div class="publisher-row"><div class="avatar publisher-avatar">李</div><div><strong>李叔 · 已认证发布者</strong><p>在乡里集发布过 4 条信息</p></div><button class="outline-button" data-view="messages"><i data-lucide="message-circle"></i>在线聊</button></div></div></div></article><aside class="detail-side"><div class="side-card response-card"><span class="section-kicker">真实回音</span><strong>这条信息正在被看见</strong><div class="response-meter"><span style="width:72%"></span></div><div class="response-numbers"><span><b>12</b>浏览</span><span><b>3</b>收藏</span><span><b>2</b>联系</span></div><button class="solid-button wide-action" data-view="messages"><i data-lucide="message-circle"></i>联系发布者</button></div><div class="side-card"><span class="section-kicker">附近还有</span><h3>同类信息</h3><button class="mini-related" data-open-detail="job"><span class="mini-related-icon"><i data-lucide="hard-hat"></i></span><span><strong>下午装车，缺 5 人</strong><small>城关镇 · 还缺 3 人</small></span><i data-lucide="arrow-up-right"></i></button><button class="mini-related"><span class="mini-related-icon"><i data-lucide="wheat"></i></span><span><strong>收红薯，量大优先</strong><small>邻村 · 1 小时前</small></span><i data-lucide="arrow-up-right"></i></button></div></aside></div>
+        </section>
+
+        <section class="view-panel" id="view-ai" data-panel="ai" aria-label="AI 对话">
+          <div class="ai-shell"><div class="ai-header"><div><span class="section-kicker">乡里集 AI</span><h2>问问 AI，帮你找到本镇答案</h2><p>只回答平台里真实存在的信息，也能帮你把需求发出去。</p></div><div class="ai-orb"><span></span><i data-lucide="sparkles"></i></div></div><div class="ai-prompt-grid"><button data-ai-query="有没有人收玉米？">有没有人收玉米？</button><button data-ai-query="今天有日结活吗？">今天有日结活吗？</button><button data-ai-query="帮我找二手农机">帮我找二手农机</button><button data-ai-query="怎么防押金骗局？">怎么防押金骗局？</button></div><div class="ai-conversation"><div class="ai-message user-message">我是木工，想找今天下午的活</div><div class="ai-message assistant-message"><div class="assistant-mark"><i data-lucide="sparkles"></i></div><div><p>我在城关镇附近找到 3 条相关信息，优先显示还缺人的。</p><div class="ai-result-stack"><button class="ai-result" data-open-detail="job"><span class="ai-result-icon job-icon"><i data-lucide="hard-hat"></i></span><span><strong>下午装车，缺 5 人</strong><small>260 元 / 天 · 还缺 3 人</small></span><i data-lucide="arrow-up-right"></i></button><button class="ai-result"><span class="ai-result-icon"><i data-lucide="wrench"></i></span><span><strong>家具厂长期招木工</strong><small>面议 · 王家镇 · 昨天</small></span><i data-lucide="arrow-up-right"></i></button></div><div class="ai-next-step"><span>也可以帮你挂一个：</span><button class="text-button" data-view="publish">帮我发布 <i data-lucide="arrow-up-right"></i></button></div></div></div></div><form class="ai-composer" id="aiComposer"><button type="button" class="composer-icon" aria-label="按住说话"><i data-lucide="mic"></i></button><input id="aiInput" placeholder="输入你想找的，或者说一句" aria-label="输入 AI 问题" /><button type="submit" class="composer-send" aria-label="发送"><i data-lucide="arrow-up-right"></i></button></form></div>
+        </section>
+
+        <section class="view-panel" id="view-messages" data-panel="messages" aria-label="消息">
+          <div class="page-intro"><div><span class="section-kicker">有人回应你</span><h2>消息</h2><p>联系、报名和平台提醒，都在这里。</p></div><button class="outline-button" id="messageSafety"><i data-lucide="shield-check"></i>防骗指南</button></div><div class="messages-layout"><aside class="conversation-list"><div class="conversation-list-head"><strong>最近会话</strong><button class="icon-button subtle" aria-label="新建会话"><i data-lucide="square-pen"></i></button></div><button class="conversation active"><span class="avatar"><span>王</span><i class="online-dot"></i></span><span><strong>王师傅 · 下午装车</strong><small>好的，下午两点村口见</small></span><time>刚刚</time><b>2</b></button><button class="conversation"><span class="avatar teal-avatar">周</span><span><strong>周姐 · 收土鸡蛋</strong><small>每周 200 斤可以</small></span><time>12分</time></button><button class="conversation"><span class="avatar yellow-avatar">乡</span><span><strong>乡里集小助手</strong><small>你的信息已通过审核</small></span><time>昨天</time></button></aside><section class="chat-panel"><div class="chat-head"><div><strong>王师傅 · 下午装车</strong><span>城关镇 · 招工信息</span></div><button class="icon-button subtle" aria-label="会话设置"><i data-lucide="more-horizontal"></i></button></div><div class="chat-safety"><i data-lucide="shield-alert"></i><span>仅在平台内沟通，遇到“先交钱”请立即停止联系并举报。</span><button class="text-button" id="chatGuide">查看规则</button></div><div class="chat-messages"><div class="chat-time">今天 11:42</div><div class="chat-bubble other">你好，下午装车还缺人吗？</div><div class="chat-bubble mine">还缺 3 人，260 元一天，下午两点村口集合。</div><div class="chat-bubble other">好的，下午两点村口见</div><div class="chat-reply-card"><span class="response-note urgent"><i data-lucide="shield-check"></i> 平台提醒</span><strong>不收押金，不点陌生链接</strong><p>如果对方要求转账，请使用举报入口。</p><button class="ghost-link" id="chatReport">举报可疑信息 <i data-lucide="arrow-right"></i></button></div></div><form class="chat-composer" id="chatComposer"><button type="button" aria-label="添加图片"><i data-lucide="image-plus"></i></button><input placeholder="输入消息…" aria-label="输入消息" /><button type="button" class="chat-record" aria-label="按住说话"><i data-lucide="mic"></i></button><button type="submit" class="composer-send" aria-label="发送"><i data-lucide="arrow-up-right"></i></button></form></section></div>
+        </section>
+
+        <section class="view-panel" id="view-mine" data-panel="mine" aria-label="我的">
+          <div class="profile-hero"><div class="profile-identity"><div class="profile-avatar-large">李</div><div><span class="section-kicker">我的乡里集</span><h2>李叔</h2><p><i data-lucide="map-pin"></i> 城关镇 · 已认证发布者</p></div></div><button class="outline-button" id="profileSettings"><i data-lucide="settings-2"></i>设置</button></div><div class="mine-stats"><div><strong>3</strong><span>在展示</span></div><div><strong>1</strong><span>待审核</span></div><div><strong>6</strong><span>收到回应</span></div><div><strong>12</strong><span>我的收藏</span></div></div><div class="mine-grid"><section class="mine-posts"><div class="section-heading"><div><span class="section-kicker">正在发生</span><h3>我的信息</h3></div><button class="ghost-link" data-view="publish">发布一条 <i data-lucide="arrow-right"></i></button></div><div class="mine-tabs"><button class="active">在展示 3</button><button>待审核 1</button><button>已完成 5</button></div><article class="mine-post"><span class="mine-post-status live-status">在展示</span><div><strong>收土鸡蛋，长期要货</strong><p>1.20 元 / 斤 · 已有 2 人联系</p></div><button class="ghost-link" data-view="detail">查看 <i data-lucide="arrow-up-right"></i></button></article><article class="mine-post"><span class="mine-post-status pending-status">待审核</span><div><strong>城关镇有 200 斤红薯要出</strong><p>刚刚提交 · 预计 2 小时内完成审核</p></div><button class="ghost-link">编辑 <i data-lucide="arrow-up-right"></i></button></article></section><aside class="mine-side"><div class="side-card response-card"><span class="section-kicker">本周回音</span><strong>你发布的信息被看见了</strong><div class="mine-progress"><span style="width:68%"></span></div><p>相比上周，多收到 2 次联系</p><button class="ghost-link" data-view="messages">查看回应 <i data-lucide="arrow-right"></i></button></div><div class="side-card safety-check"><span class="section-kicker">安全状态</span><h3>账号保护得很好</h3><div><i data-lucide="check-circle-2"></i><span>已完成手机号认证</span></div><div><i data-lucide="check-circle-2"></i><span>已开启防骗提醒</span></div><div><i data-lucide="circle-alert"></i><span>建议补充常用地址</span></div></div></aside></div>
+        </section>
+      </main>
+
+      <nav class="mobile-bottom-nav" aria-label="移动端导航">
+        <button class="mobile-nav-item active" data-view="home"><i data-lucide="house"></i><span>首页</span></button>
+        <button class="mobile-nav-item" data-view="explore"><i data-lucide="compass"></i><span>逛一逛</span></button>
+        <button class="mobile-publish" id="mobilePublish"><span><i data-lucide="plus"></i></span><small>发布</small></button>
+        <button class="mobile-nav-item" data-view="messages"><i data-lucide="message-circle"></i><span>消息</span><b>2</b></button>
+        <button class="mobile-nav-item" data-view="mine"><i data-lucide="user-round"></i><span>我的</span></button>
+      </nav>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

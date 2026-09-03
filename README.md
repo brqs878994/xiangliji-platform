@@ -26,6 +26,32 @@ pnpm dev:h5
 pnpm build:weapp
 ```
 
+## 后台 MVP
+
+当前后台使用 NestJS 模块化单体和内存 Repository，接口已经覆盖分类、乡镇、信息列表、发布草稿、审核、响应和 AI Provider 路由。数据重启后会恢复种子数据，后续只替换 Repository 实现即可接入 MySQL。
+
+API 地址：`http://127.0.0.1:3000`
+
+管理台：启动 H5 后打开 `/pages/admin/index`（首页左侧“运营台”入口）。
+
+主要接口：
+
+- `GET /categories`、`GET /towns`、`GET /posts`
+- `POST /posts/drafts`、`PATCH /posts/drafts/:id`
+- `POST /posts/drafts/:id/submit-review`
+- `GET /admin/audits`、`POST /admin/audits/:id/approve`、`POST /admin/audits/:id/reject`
+- `GET /admin/stats`
+- `GET/POST/PATCH /admin/ai/providers`、`GET /admin/ai/routes`、`PUT /admin/ai/routes/:capability`
+
+发布和审核动作都要求显式确认；Provider 的 API Key 只在服务端保存，接口返回掩码值。
+
+如果 `pnpm --filter @xiangliji/api build` 触发 `magic-string` ESM 工具链错误，可使用仓库当前可用的编译方式：
+
+```powershell
+pnpm --filter @xiangliji/api exec tsc -p tsconfig.json
+pnpm --filter @xiangliji/api start
+```
+
 Docker 本地依赖：
 
 ```powershell
@@ -41,4 +67,3 @@ git push
 ```
 
 现有 high-fi-home/ 是视觉回归基准，原型文件保持不变。
-

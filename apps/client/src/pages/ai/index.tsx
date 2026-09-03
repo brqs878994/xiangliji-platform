@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Input, Text, View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import type { ChatEvent } from '@xiangliji/ai-contracts';
@@ -13,6 +13,11 @@ export default function AiPage() {
   const [action, setAction] = useState<ChatEvent & { type: 'action' } | null>(null);
   const [loading, setLoading] = useState(false);
   const [loginRequired, setLoginRequired] = useState(false);
+
+  useEffect(() => {
+    const params = Taro.getCurrentInstance().router?.params ?? {};
+    if (params.query) setMessage(decodeURIComponent(params.query));
+  }, []);
 
   async function submit() {
     const value = message.trim();
@@ -93,4 +98,3 @@ export default function AiPage() {
     </View>
   );
 }
-

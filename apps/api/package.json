@@ -3,11 +3,11 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "dev": "nest start --watch",
-    "build": "nest build",
-    "start": "node dist/main.js",
+    "dev": "tsc -p tsconfig.json && node --experimental-require-module dist/main.js",
+    "build": "tsc -p tsconfig.json",
+    "start": "node --experimental-require-module dist/main.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run",
+    "test": "vitest run src",
     "lint": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
@@ -30,4 +30,3 @@
     "vitest": "^4.1.11"
   }
 }
-

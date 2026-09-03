@@ -1,4 +1,5 @@
-const API_BASE_URL = process.env.TARO_APP_API_BASE_URL || 'http://127.0.0.1:3000';
+const runtimeEnv = typeof process !== 'undefined' ? process.env : undefined;
+const API_BASE_URL = runtimeEnv?.TARO_APP_API_BASE_URL || 'http://127.0.0.1:3000';
 
 export interface ChatRequest {
   sessionId: string;
@@ -20,4 +21,3 @@ export async function requestJson<T>(path: string, init?: RequestInit): Promise<
 export function getApiBaseUrl() {
   return API_BASE_URL;
 }
-
