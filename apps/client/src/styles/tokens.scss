@@ -1,3 +1,12 @@
+html {
+  font-size: 250% !important;
+}
+
+body {
+  margin: 0;
+}
+
+:root,
 page {
   --ink: #163732;
   --ink-deep: #102624;
@@ -14,4 +23,3 @@ page {
   color: var(--ink);
   font-family: -apple-system, BlinkMacSystemFont, "Noto Sans SC", sans-serif;
 }
-
