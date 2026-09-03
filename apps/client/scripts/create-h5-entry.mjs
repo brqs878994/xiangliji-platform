@@ -9,7 +9,7 @@ const html = `<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <title>乡里集</title>
   <link rel="stylesheet" href="/css/app.css">
   <link rel="stylesheet" href="/css/926.css">

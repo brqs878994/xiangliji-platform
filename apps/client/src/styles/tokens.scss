@@ -1,10 +1,14 @@
 html {
   font-size: 250% !important;
+  touch-action: manipulation;
 }
 
 body {
   margin: 0;
+  touch-action: manipulation;
 }
+
+#app { touch-action: manipulation; }
 
 :root,
 page {
