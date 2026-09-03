@@ -10,6 +10,7 @@ export class InMemoryPlatformRepository implements PlatformRepository {
   private readonly posts = seedPosts.map((item) => ({ ...item }));
   private readonly drafts = new Map<string, DraftRecord>();
   private readonly audits = new Map<string, AuditRecord>();
+  private readonly draftPosts = new Map<string, string>();
   private readonly responses = new Map<string, ResponseRecord>();
 
   listCategories(): CategoryItem[] { return this.categories.filter((item) => item.enabled).sort((a, b) => a.sort - b.sort).map((item) => ({ ...item })); }
@@ -46,7 +47,10 @@ export class InMemoryPlatformRepository implements PlatformRepository {
     if (!draft || draft.userId !== userId) throw new Error('draft_not_found');
     if (!confirmed) throw new Error('confirmation_required');
     if (draft.status !== 'draft') throw new Error('draft_not_editable');
-    draft.status = 'pending_review';
+    draft.status = 'published';
+    const post = this.createPostFromDraft(draft);
+    this.posts.unshift(post);
+    this.draftPosts.set(draft.id, post.id);
     const audit: AuditRecord = { id: `audit-${randomUUID()}`, draftId: id, status: 'pending', reason: null, createdAt: new Date().toISOString(), reviewedAt: null };
     this.audits.set(audit.id, audit);
     return { ...audit };
@@ -58,12 +62,20 @@ export class InMemoryPlatformRepository implements PlatformRepository {
     const draft = this.drafts.get(audit.draftId);
     if (!draft) return undefined;
     audit.status = approved ? 'approved' : 'rejected'; audit.reason = reason || null; audit.reviewedAt = new Date().toISOString();
-    draft.status = approved ? 'published' : 'rejected';
-    if (!approved) return undefined;
+    const postId = this.draftPosts.get(draft.id);
+    const post = postId ? this.posts.find((item) => item.id === postId) : undefined;
+    if (!approved) {
+      draft.status = 'rejected';
+      if (post) post.status = 'removed';
+      return undefined;
+    }
+    draft.status = 'published';
+    return post ? { ...post } : undefined;
+  }
+  private createPostFromDraft(draft: DraftRecord): PostRecord {
+    const publishedAt = new Date();
     const town = this.towns.find((item) => item.code === draft.townCode);
-    const post: PostRecord = { id: `post-${randomUUID()}`, category: draft.category || '其他', title: draft.title, townCode: draft.townCode || 'chengguan', townName: town?.name || draft.townCode || '城关镇', distanceKm: null, publishedAt: new Date().toISOString(), validUntil: new Date(Date.now() + draft.validDays * 86400000).toISOString(), summary: draft.body.slice(0, 120), responseLabel: null, body: draft.body, status: 'published', ownerId: draft.userId };
-    this.posts.unshift(post);
-    return { ...post };
+    return { id: `post-${randomUUID()}`, category: draft.category || '其他', title: draft.title, townCode: draft.townCode || 'chengguan', townName: town?.name || draft.townCode || '城关镇', distanceKm: null, publishedAt: publishedAt.toISOString(), validUntil: new Date(publishedAt.getTime() + draft.validDays * 86400000).toISOString(), summary: draft.body.slice(0, 120), responseLabel: null, body: draft.body, status: 'published', ownerId: draft.userId };
   }
   addResponse(postId: string, input: { userId: string; type: ResponseRecord['type']; message?: string }): ResponseRecord | undefined {
     if (!this.getPost(postId)) return undefined;

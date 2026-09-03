@@ -8,15 +8,26 @@ describe('InMemoryPlatformRepository', () => {
     expect(repository.listPosts({ townCode: 'unknown' })).toHaveLength(0);
   });
 
-  it('moves a confirmed draft through review into a published post', () => {
+  it('publishes a confirmed draft immediately and keeps review asynchronous', () => {
     const repository = new InMemoryPlatformRepository();
     const draft = repository.createDraft({ userId: 'u1', title: '收红薯', category: '助农供求', townCode: 'chengguan', body: '长期收红薯', validDays: 14 });
     const audit = repository.submitDraft(draft.id, 'u1', true);
     expect(audit.status).toBe('pending');
+    expect(repository.getDraft(draft.id)?.status).toBe('published');
+    expect(repository.listPosts({ keyword: '收红薯' })).toHaveLength(1);
     const post = repository.reviewAudit(audit.id, true);
     expect(post?.status).toBe('published');
     expect(post && Date.parse(post.validUntil) - Date.parse(post.publishedAt)).toBe(14 * 86400000);
     expect(repository.listPosts({ keyword: '收红薯' })).toHaveLength(1);
+  });
+
+  it('removes an immediately visible post when review rejects it', () => {
+    const repository = new InMemoryPlatformRepository();
+    const draft = repository.createDraft({ userId: 'u1', title: '违规信息', category: '助农供求', townCode: 'chengguan', body: '待审核内容' });
+    const audit = repository.submitDraft(draft.id, 'u1', true);
+    expect(repository.listPosts({ keyword: '违规信息' })).toHaveLength(1);
+    repository.reviewAudit(audit.id, false, '不符合发布规则');
+    expect(repository.listPosts({ keyword: '违规信息' })).toHaveLength(0);
   });
 
   it('adds and removes a favorite idempotently', () => {
