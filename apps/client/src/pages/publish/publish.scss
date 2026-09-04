@@ -16,4 +16,3 @@
 .validity-picker-line { cursor: pointer; }
 .validity-picker-line > Text:last-child { color: var(--green); }
 .validity-picker-line > Text:last-child::after { content: '  可调整'; color: var(--orange); font-size: 9px; font-weight: 600; }
-.review-button.completed { color: var(--green); background: var(--green-soft); cursor: default; }

@@ -76,7 +76,6 @@
 .feed-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; margin-top: 16px; }
 .feed-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .latest-side-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
-.feed-error { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px; border: 1px solid #eac7b9; border-radius: 6px; color: var(--orange); background: #fff4ef; font-size: 11px; }
 .side-card { position: relative; padding: 18px; border-radius: 7px; background: var(--paper-warm); }
 .scene-card { color: var(--ink); background: #f0d68c; }
 .trust-card { border: 1px solid var(--line); }
