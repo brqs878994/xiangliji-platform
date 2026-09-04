@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button, Input, Text, View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
-import type { ChatEvent } from '@xiangliji/ai-contracts';
+import type { AnswerSource, ChatEvent } from '@xiangliji/ai-contracts';
 import type { PostCard } from '@xiangliji/domain';
 import { streamChat } from '../../services/ai';
 import './ai.scss';
@@ -10,6 +10,7 @@ export default function AiPage() {
   const [message, setMessage] = useState('');
   const [answer, setAnswer] = useState('');
   const [cards, setCards] = useState<PostCard[]>([]);
+  const [sources, setSources] = useState<AnswerSource[]>([]);
   const [action, setAction] = useState<ChatEvent & { type: 'action' } | null>(null);
   const [loading, setLoading] = useState(false);
   const [loginRequired, setLoginRequired] = useState(false);
@@ -25,6 +26,7 @@ export default function AiPage() {
     setLoading(true);
     setAnswer('');
     setCards([]);
+    setSources([]);
     setAction(null);
     setLoginRequired(false);
 
@@ -40,6 +42,7 @@ export default function AiPage() {
         (event) => {
           if (event.type === 'text_delta') setAnswer((current) => current + event.text);
           if (event.type === 'cards') setCards(event.cards);
+          if (event.type === 'sources') setSources(event.sources);
           if (event.type === 'action') setAction(event);
           if (event.type === 'warning' && event.code === 'login_required') setLoginRequired(true);
           if (event.type === 'error') setAnswer(event.message);
@@ -71,16 +74,17 @@ export default function AiPage() {
         {cards.map((card) => (
           <View key={card.id} className='result-card'>
             <Text className='result-category'>{card.category}</Text>
-            <Text className='result-title'>{card.title}</Text>
-            <Text className='result-meta'>{card.townName} · {card.distanceKm} km · {card.responseLabel}</Text>
+            <Text className='result-title' onClick={() => Taro.navigateTo({ url: `/pages/detail/index?id=${encodeURIComponent(card.id)}` })}>{card.title}</Text>
+            <Text className='result-meta'>{card.townName} · {card.distanceKm === null ? '本镇' : `${card.distanceKm} km`} · {card.responseLabel || '待响应'}</Text>
             <Text className='result-summary'>{card.summary}</Text>
           </View>
         ))}
+        {sources.length > 0 && <View className='source-list'><Text className='source-title'>回答依据</Text>{sources.map((source) => <Text key={source.type === 'platform' ? source.postId : source.type === 'web' ? source.url : source.label} className='source-item'>{source.type === 'platform' ? `平台信息：${source.title}` : source.type === 'web' ? `联网来源：${source.title}` : '通用知识回答'}</Text>)}</View>}
         {action && (
           <View className='action-card'>
             <Text>没有匹配到现成信息，可以生成一条发布草稿。</Text>
             {loginRequired && <Text className='login-note'>登录后才能保存草稿</Text>}
-            <Button size='mini' onClick={() => Taro.showToast({ title: loginRequired ? '请先登录' : '草稿已准备', icon: 'none' })}>生成发布草稿</Button>
+            <Button size='mini' onClick={() => loginRequired ? Taro.showToast({ title: '请先登录', icon: 'none' }) : Taro.navigateTo({ url: `/pages/publish/index?query=${encodeURIComponent(message.trim())}` })}>帮我发布</Button>
           </View>
         )}
       </View>

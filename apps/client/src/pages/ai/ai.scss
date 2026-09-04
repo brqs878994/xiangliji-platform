@@ -12,6 +12,8 @@
 .result-category { display: block; color: var(--orange); font-size: 11px; font-weight: 700; }
 .result-title { display: block; margin-top: 5px; color: var(--ink); font-size: 14px; font-weight: 800; }
 .result-meta, .result-summary { display: block; margin-top: 6px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.result-title { cursor: pointer; }
+.source-list { display: grid; gap: 5px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }.source-title { color: var(--muted); font-size: 10px; font-weight: 700; }.source-item { color: var(--green); font-size: 10px; line-height: 1.5; }
 .action-card { display: grid; gap: 10px; margin-top: 12px; padding: 13px; border: 1px solid #edb9aa; border-radius: 6px; color: var(--ink); background: var(--orange-soft); font-size: 12px; line-height: 1.5; }
 .login-note { color: var(--orange); font-weight: 700; }
 .action-card button { width: max-content; min-height: 40px; padding: 0 12px; }
@@ -21,4 +23,3 @@
 @media (min-width: 761px) {
   .ai-page { width: min(920px, 100%); margin: 0 auto; padding: 46px 34px; }
 }
-

@@ -9,6 +9,11 @@ export class AiConfigService {
     ['general_chat', { capability: 'general_chat', primaryProviderId: 'mock', fallbackProviderId: null, enabled: true }],
     ['town_search', { capability: 'town_search', primaryProviderId: 'mock', fallbackProviderId: null, enabled: true }],
     ['post_field_extraction', { capability: 'post_field_extraction', primaryProviderId: 'mock', fallbackProviderId: null, enabled: true }],
+    ['web_search_answer', { capability: 'web_search_answer', primaryProviderId: 'mock', fallbackProviderId: null, enabled: true }],
+    ['speech_to_text', { capability: 'speech_to_text', primaryProviderId: 'mock', fallbackProviderId: null, enabled: true }],
+    ['embedding', { capability: 'embedding', primaryProviderId: 'mock', fallbackProviderId: null, enabled: true }],
+    ['moderation', { capability: 'moderation', primaryProviderId: 'mock', fallbackProviderId: null, enabled: true }],
+    ['text_to_speech', { capability: 'text_to_speech', primaryProviderId: 'mock', fallbackProviderId: null, enabled: true }],
   ]);
 
   listProviders() { return [...this.providers.values()].map((provider) => this.publicProvider(provider)); }

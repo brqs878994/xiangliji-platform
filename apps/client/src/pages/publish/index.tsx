@@ -20,7 +20,22 @@ export default function PublishPage() {
   const [categories, setCategories] = useState<PlatformCategory[]>(fallbackCategories);
   const [draftId, setDraftId] = useState<string | null>(null);
 
-  useEffect(() => { void getCategories().then(setCategories); }, []);
+  const storageKey = 'xiangliji-publish-draft';
+
+  useEffect(() => {
+    void getCategories().then(setCategories);
+    const saved = Taro.getStorageSync(storageKey) as Partial<{ content: string; draft: Draft; step: number; validityIndex: number; categoryIndex: number; draftId: string | null }>;
+    if (saved?.content || saved?.draft) {
+      if (saved.content) setContent(saved.content);
+      if (saved.draft) setDraft((current) => ({ ...current, ...saved.draft }));
+      if (typeof saved.step === 'number') setStep(saved.step);
+      if (typeof saved.validityIndex === 'number') setValidityIndex(saved.validityIndex);
+      if (typeof saved.categoryIndex === 'number') setCategoryIndex(saved.categoryIndex);
+      if (saved.draftId) setDraftId(saved.draftId);
+    }
+  }, []);
+
+  useEffect(() => { Taro.setStorageSync(storageKey, { content, draft, step, validityIndex, categoryIndex, draftId }); }, [content, draft, step, validityIndex, categoryIndex, draftId]);
 
   const categoryOptions = categories.map((item) => `${item.name} · ${item.subtitle}`);
 
@@ -48,7 +63,7 @@ export default function PublishPage() {
     if (!draftId) { void saveDraft(); return; }
     Taro.showModal({ title: '确认发布信息', content: '提交后信息会立即展示，平台同时进行后台审核，确认继续吗？', success: (res) => {
       if (!res.confirm) return;
-      void submitDraftReview(draftId, 'user-demo').then(() => { setStep(3); notify('已发布，后台审核中'); }).catch(() => notify('发布失败，请稍后重试'));
+      void submitDraftReview(draftId, 'user-demo').then(() => { setStep(3); Taro.removeStorageSync(storageKey); notify('已发布，后台审核中'); }).catch(() => notify('发布失败，请稍后重试'));
     } });
   }
 

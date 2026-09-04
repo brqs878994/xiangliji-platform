@@ -1,10 +1,14 @@
 import type { PostCard, PostDraft, PostStatus } from '@xiangliji/domain';
+export type { PostStatus } from '@xiangliji/domain';
 
 export interface CategoryItem { id: string; name: string; subtitle: string; enabled: boolean; sort: number; }
 export interface TownItem { code: string; name: string; countyName: string; enabled: boolean; }
 export interface DraftRecord extends Omit<PostDraft, 'status'> { status: PostStatus; userId: string; validDays: number; createdAt: string; updatedAt: string; }
 export interface AuditRecord { id: string; draftId: string; status: 'pending' | 'approved' | 'rejected'; reason: string | null; createdAt: string; reviewedAt: string | null; }
 export interface ResponseRecord { id: string; postId: string; userId: string; type: 'contact' | 'signup' | 'favorite'; message: string | null; createdAt: string; }
+export interface ReportRecord { id: string; postId: string; userId: string; reason: string; createdAt: string; }
+export interface ConversationRecord { id: string; userId: string; participantName: string; preview: string; unread: number; updatedAt: string; }
+export interface MessageRecord { id: string; conversationId: string; senderId: string; content: string; createdAt: string; }
 export interface PostRecord extends PostCard { body: string; status: PostStatus; ownerId: string; }
 export interface PostFilters { townCode?: string; category?: string; keyword?: string; }
 
@@ -12,6 +16,7 @@ export interface PlatformRepository {
   listCategories(): CategoryItem[];
   listTowns(): TownItem[];
   listPosts(filters: PostFilters): PostRecord[];
+  listUserPosts(userId: string): PostRecord[];
   getPost(id: string): PostRecord | undefined;
   getDraft(id: string): DraftRecord | undefined;
   createDraft(input: { userId: string; title: string; category: string; townCode: string; body: string; validDays?: number }): DraftRecord;
@@ -22,4 +27,9 @@ export interface PlatformRepository {
   addResponse(postId: string, input: { userId: string; type: ResponseRecord['type']; message?: string }): ResponseRecord | undefined;
   removeResponse(postId: string, userId: string, type: ResponseRecord['type']): ResponseRecord | undefined;
   listResponses(postId: string): ResponseRecord[];
+  updatePostStatus(postId: string, userId: string, status: Extract<PostStatus, 'closed' | 'expired'>): PostRecord | undefined;
+  createReport(postId: string, userId: string, reason: string): ReportRecord | undefined;
+  listConversations(userId: string): ConversationRecord[];
+  listMessages(conversationId: string, userId: string): MessageRecord[];
+  sendMessage(conversationId: string, userId: string, content: string): MessageRecord | undefined;
 }

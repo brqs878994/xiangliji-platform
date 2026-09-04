@@ -38,4 +38,15 @@ describe('InMemoryPlatformRepository', () => {
     expect(repository.removeResponse('post-corn-001', 'u1', 'favorite')?.id).toBe(response?.id);
     expect(repository.listResponses('post-corn-001')).toHaveLength(0);
   });
+
+  it('persists platform conversation messages and rejects other users', async () => {
+    const repository = new InMemoryPlatformRepository();
+    const conversations = repository.listConversations('user-demo');
+    expect(conversations.length).toBeGreaterThan(0);
+    const conversation = conversations[0];
+    expect(repository.listMessages(conversation.id, 'other-user')).toHaveLength(0);
+    const message = repository.sendMessage(conversation.id, 'user-demo', '我这边还有，可以看图确认');
+    expect(message?.content).toContain('可以看图');
+    expect(repository.listMessages(conversation.id, 'user-demo').at(-1)?.id).toBe(message?.id);
+  });
 });

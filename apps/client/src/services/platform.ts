@@ -1,7 +1,7 @@
 import { requestJson } from './api';
 
 export interface PlatformCategory { id: string; name: string; subtitle: string; enabled: boolean; sort: number; }
-export interface PlatformPost { id: string; category: string; title: string; townCode: string; townName: string; distanceKm: number | null; publishedAt: string; validUntil: string; summary: string; responseLabel: string | null; }
+export interface PlatformPost { id: string; category: string; title: string; townCode: string; townName: string; distanceKm: number | null; publishedAt: string; validUntil: string; summary: string; responseLabel: string | null; body?: string; status?: string; ownerId?: string; }
 
 export const fallbackCategories: PlatformCategory[] = [
   { id: 'farm', name: '助农供求', subtitle: '卖货 · 找收', enabled: true, sort: 1 },
@@ -30,6 +30,8 @@ export async function getPosts(filters: { townCode?: string; category?: string; 
   const suffix = query.toString() ? `?${query.toString()}` : '';
   return (await requestJson<{ items: PlatformPost[] }>(`/posts${suffix}`)).items;
 }
+export async function getMyPosts(userId: string) { return requestJson<{ items: PlatformPost[] }>(`/me/posts?${new URLSearchParams({ userId }).toString()}`); }
+export async function getPost(id: string) { return requestJson<PlatformPost & { body: string; status: string; ownerId: string }>(`/posts/${id}`); }
 
 export interface DraftResponse { id: string; title: string; category: string; townCode: string; body: string; validDays: number; status: string; userId: string; }
 export async function createDraft(input: { userId: string; title: string; category: string; townCode: string; body: string; validDays?: number }) {
@@ -56,6 +58,18 @@ export async function removeResponse(postId: string, userId: string, type: PostR
 export async function toggleFavorite(postId: string, userId: string, saved: boolean) {
   return saved ? removeResponse(postId, userId, 'favorite') : addResponse(postId, { userId, type: 'favorite' });
 }
+export async function updatePostStatus(postId: string, userId: string, status: 'closed' | 'expired') {
+  return requestJson<PlatformPost>(`/posts/${postId}/status`, { method: 'POST', body: JSON.stringify({ userId, status, confirmed: true }) });
+}
+export async function reportPost(postId: string, userId: string, reason: string) {
+  return requestJson(`/reports`, { method: 'POST', body: JSON.stringify({ postId, userId, reason }) });
+}
+
+export interface PlatformConversation { id: string; userId: string; participantName: string; preview: string; unread: number; updatedAt: string; }
+export interface PlatformMessage { id: string; conversationId: string; senderId: string; content: string; createdAt: string; }
+export async function getConversations(userId: string) { return requestJson<{ items: PlatformConversation[] }>(`/conversations?${new URLSearchParams({ userId }).toString()}`); }
+export async function getConversationMessages(conversationId: string, userId: string) { return requestJson<{ items: PlatformMessage[] }>(`/conversations/${conversationId}/messages?${new URLSearchParams({ userId }).toString()}`); }
+export async function sendConversationMessage(conversationId: string, userId: string, content: string) { return requestJson<PlatformMessage>(`/conversations/${conversationId}/messages`, { method: 'POST', body: JSON.stringify({ userId, content }) }); }
 
 export interface PlatformAudit { id: string; draftId: string; status: 'pending' | 'approved' | 'rejected'; reason: string | null; createdAt: string; reviewedAt: string | null; draft: { title: string; category: string; townCode: string; body: string; userId: string } | null; }
 export interface AiProvider { id: string; name: string; protocol: string; baseUrl: string | null; apiKey: string | null; model: string; timeoutMs: number; maxTokens: number; enabled: boolean; }
@@ -68,3 +82,12 @@ export async function reviewAudit(id: string, approved: boolean, reason?: string
 }
 export async function getAiProviders() { return requestJson<{ items: AiProvider[] }>('/admin/ai/providers'); }
 export async function getAiRoutes() { return requestJson<{ items: AiRoute[] }>('/admin/ai/routes'); }
+export async function createAiProvider(input: Omit<AiProvider, 'id' | 'apiKey'> & { apiKey?: string | null }) {
+  return requestJson<AiProvider>('/admin/ai/providers', { method: 'POST', body: JSON.stringify(input) });
+}
+export async function updateAiProvider(id: string, input: Partial<Omit<AiProvider, 'id' | 'apiKey'>> & { apiKey?: string | null }) {
+  return requestJson<AiProvider>(`/admin/ai/providers/${id}`, { method: 'PATCH', body: JSON.stringify(input) });
+}
+export async function updateAiRoute(capability: string, input: { primaryProviderId: string; fallbackProviderId?: string | null; enabled?: boolean }) {
+  return requestJson<AiRoute>(`/admin/ai/routes/${capability}`, { method: 'PUT', body: JSON.stringify(input) });
+}

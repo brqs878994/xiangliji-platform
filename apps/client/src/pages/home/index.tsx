@@ -21,6 +21,11 @@ const initialPosts = [
 
 const currentUserId = 'user-demo';
 
+function formatHomeDate(value = new Date()) {
+  const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+  return `${value.getFullYear()}年${value.getMonth() + 1}月${value.getDate()}日 · 星期${weekdays[value.getDay()]}`;
+}
+
 function go(url: string) {
   Taro.navigateTo({ url });
 }
@@ -33,6 +38,7 @@ export default function HomePage() {
   const [posts, setPosts] = useState(initialPosts);
   const [loadError, setLoadError] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+  const [pulse, setPulse] = useState({ total: 0, hiring: 0, responded: 0, latest: 0 });
 
   useEffect(() => {
     let disposed = false;
@@ -53,8 +59,16 @@ export default function HomePage() {
       if (disposed) return;
       setLoadError(false);
       setPosts(nextPosts);
-      return Promise.all(nextPosts.map((post) => getResponses(post.id).catch(() => ({ items: [] })))).then((responses) => {
+      return Promise.all(items.map((post) => getResponses(post.id).catch(() => ({ items: [] })))).then((responses) => {
         if (disposed) return;
+        const allResponses = responses.flatMap((result) => result.items);
+        const now = Date.now();
+        setPulse({
+          total: items.length,
+          hiring: items.filter((post) => /招工|零工|任务/.test(post.category)).length,
+          responded: new Set(allResponses.filter((item) => item.type === 'contact' || item.type === 'signup').map((item) => item.postId)).size,
+          latest: items.filter((post) => now - Date.parse(post.publishedAt) <= 24 * 60 * 60 * 1000).length,
+        });
         setFavoriteIds(new Set(responses.flatMap((result) => result.items).filter((item) => item.userId === currentUserId && item.type === 'favorite').map((item) => item.postId)));
       });
     }).catch(() => { setPosts([]); setLoadError(true); });
@@ -107,15 +121,15 @@ export default function HomePage() {
         <View className='rail-nav'>
           <View className='rail-item active'><Text className='icon'>⌂</Text><Text>首页</Text></View>
           <View className='rail-item' onClick={() => go('/pages/explore/index')}><Text className='icon'>◌</Text><Text>逛一逛</Text></View>
-          <View className='rail-item' onClick={() => showNotice('消息中心正在接入')}><Text className='icon'>◍</Text><Text>消息</Text><Text className='badge'>2</Text></View>
-          <View className='rail-item' onClick={() => showNotice('个人中心正在接入')}><Text className='icon'>◉</Text><Text>我的</Text></View>
+          <View className='rail-item' onClick={() => go('/pages/messages/index')}><Text className='icon'>◍</Text><Text>消息</Text><Text className='badge'>2</Text></View>
+          <View className='rail-item' onClick={() => go('/pages/mine/index')}><Text className='icon'>◉</Text><Text>我的</Text></View>
           <View className='rail-item' onClick={() => go('/pages/admin/index')}><Text className='icon'>⚙</Text><Text>运营台</Text></View>
         </View>
         <View className='rail-footer'><View className='rail-help' onClick={() => showNotice('不交押金，不扫陌生码')}><Text className='icon'>♢</Text><Text>防骗指南</Text></View><View className='rail-user'><Text className='avatar'>李</Text><View><Text className='user-name'>李叔</Text><Text className='user-sub'>已认证发布者</Text></View></View></View>
       </View>
 
       <View className='main-content'>
-        <View className='topbar'><View className='mobile-brand'><Text className='brand-symbol'>乡</Text><Text>乡里集</Text></View><View className='topbar-copy'><Text className='eyebrow'>城关镇 · 星期四 9月3日</Text><Text className='page-title'>今天，镇上有什么新消息？</Text></View><View className='topbar-actions'><View className='top-publish-button' onClick={() => go('/pages/publish/index')}><Text className='publish-plus'>＋</Text><Text>发布信息</Text></View><Text className='icon-button'>♧</Text><Text className='avatar small'>李</Text></View></View>
+        <View className='topbar'><View className='mobile-brand'><Text className='brand-symbol'>乡</Text><Text>乡里集</Text></View><View className='topbar-copy'><Text className='eyebrow'>城关镇 · {formatHomeDate().replace(/^\d+年/, '')}</Text><Text className='page-title'>今天，镇上有什么新消息？</Text></View><View className='topbar-actions'><View className='top-publish-button' onClick={() => go('/pages/publish/index')}><Text className='publish-plus'>＋</Text><Text>发布信息</Text></View><Text className='icon-button'>♧</Text><Text className='avatar small'>李</Text></View></View>
 
         <View className='hero-grid'>
           <View className={`voice-card ${textMode ? 'typing-open' : ''}`}>
@@ -123,7 +137,7 @@ export default function HomePage() {
             {!textMode ? <View className='voice-main'><View className='waveform'>{[16,28,20,38,24,48,32,58,30,42,22,52,28,40,18].map((h, i) => <Text key={i} className='wave-bar' style={{ height: `${h}px` }} />)}</View><View className={`record-button ${recording ? 'recording' : ''}`} onTouchStart={() => setRecording(true)} onTouchEnd={() => setRecording(false)} onClick={openVoiceAi}><Text className='record-core'><Text className='mic-glyph'>⌕</Text></Text><Text className='record-label'>{recording ? '正在听' : '按住说话'}</Text></View><Text className='record-status'>{recording ? '松开后进入 AI 问答' : '例如：有没有人收玉米？'}</Text></View> : <View className='typing-panel'><Text className='section-kicker'>文字输入</Text><Text className='typing-title'>写下你想找或想问的内容</Text><Textarea className='typing-input' value={query} maxlength={200} placeholder='例如：城关镇有没有人收玉米？' onInput={(e) => setQuery(e.detail.value)} /><View className='typing-submit-row'><Text className='typing-count'>{query.length} / 200</Text><View className='typing-submit' onClick={submitSearch}>开始查找 <Text>↗</Text></View></View><Text className='typing-status'>内容越完整，AI 越容易帮你找到合适的信息。</Text><View className='search-hints'><Text>本镇刚刚有人在找</Text>{['收玉米', '下午装车', '二手农机'].map((item) => <Text key={item} className='hint-chip' onClick={() => setQuery(item)}>{item}</Text>)}</View></View>}
             <View className='voice-footer'><Text>✦ AI 会帮你查找或回答</Text><View className='voice-footer-actions'><Text className='text-button' onClick={() => go('/pages/ai/index')}>问问 AI ↗</Text></View></View>
           </View>
-          <View className='pulse-card'><View className='pulse-heading'><Text>本镇脉搏</Text><Text className='icon'>↗</Text></View><View className='pulse-number'><Text className='pulse-total'>28</Text><Text className='pulse-unit'>条新信息</Text></View><View className='pulse-stats'><View><Text className='stat-dot yellow' /><Text className='stat-value'>6</Text><Text className='stat-label'>正在招人</Text></View><View><Text className='stat-dot orange' /><Text className='stat-value'>4</Text><Text className='stat-label'>刚刚有人响应</Text></View><View><Text className='stat-dot teal' /><Text className='stat-value'>12</Text><Text className='stat-label'>同镇新发布</Text></View></View><View className='mini-signal'>{[12,24,16,34,22,42,30,50,38,46,28,58,34,44,26].map((h, i) => <Text key={i} className='signal-bar' style={{ height: `${h}px` }} />)}</View><View className='signal-axis'><Text>06:00</Text><Text>现在</Text></View></View>
+          <View className='pulse-card'><View className='pulse-heading'><Text>本镇脉搏</Text><Text className='icon'>↗</Text></View><View className='pulse-number'><Text className='pulse-total'>{pulse.total}</Text><Text className='pulse-unit'>条新信息</Text></View><View className='pulse-stats'><View><Text className='stat-dot yellow' /><Text className='stat-value'>{pulse.hiring}</Text><Text className='stat-label'>正在招人</Text></View><View><Text className='stat-dot orange' /><Text className='stat-value'>{pulse.responded}</Text><Text className='stat-label'>刚刚有人响应</Text></View><View><Text className='stat-dot teal' /><Text className='stat-value'>{pulse.latest}</Text><Text className='stat-label'>近 24 小时发布</Text></View></View><View className='mini-signal'>{[12,24,16,34,22,42,30,50,38,46,28,58,34,44,26].map((h, i) => <Text key={i} className='signal-bar' style={{ height: `${h}px` }} />)}</View><View className='signal-axis'><Text>06:00</Text><Text>现在</Text></View></View>
         </View>
 
         <View className='trust-strip'><Text className='icon'>♢</Text><Text>平台只做信息交流，不参与交易、不担保资金</Text><Text className='text-button'>了解安全规则 ↗</Text></View>
@@ -132,11 +146,11 @@ export default function HomePage() {
         <View className='category-grid'>{categories.map((item) => <View key={item.title} className={`category-card category-${item.tone}`} onClick={() => go(`/pages/explore/index?category=${encodeURIComponent(item.title)}`)}><Text className='category-icon'>{item.icon}</Text><View><Text className='category-title'>{item.title}</Text><Text className='category-subtitle'>{item.subtitle}</Text></View><Text className='category-arrow'>↗</Text></View>)}</View>
 
         <View className='section-heading feed-heading'><View><Text className='section-kicker'>刚刚发生</Text><Text className='section-title'>本镇最新</Text></View><View className='feed-controls'>{['综合', '最新', '最近'].map((item, i) => <Text key={item} className={`filter-chip ${i === 0 ? 'active' : ''}`} onClick={() => showNotice(`${item}排序已切换`)}>{item}</Text>)}</View></View>
-        {loadError ? <View className='feed-error'><Text>信息服务暂时不可用</Text><Text onClick={() => Taro.reLaunch({ url: '/pages/home/index' })}>重新加载 ↻</Text></View> : <View className='feed-layout'><View className='feed-list'>{posts.map((post, i) => { const saved = favoriteIds.has(post.id); return <View key={post.id} className={`post-card ${i === 0 ? 'featured-post' : ''}`}><View className={`post-image image-${post.tone}`}>{post.image ? <Image className='post-photo' src={post.image} mode='aspectFill' /> : <Text className='post-art'>{post.tone === 'tools' ? '农机具' : '下午急招'}</Text>}<View className='post-image-shade' /><Text className={`post-label label-${post.label}`}>{post.label}</Text><View className={`save-button ${saved ? 'saved' : ''}`} role='button' aria-label={saved ? '取消收藏' : '收藏'} aria-pressed={saved} onClick={() => void handleFavorite(post.id)}><Text className='bookmark-glyph' /></View></View><View className='post-body'><View className='post-meta'><Text>{post.type}</Text><Text>{post.age}</Text></View><Text className='post-title'>{post.title}</Text><Text className='post-summary'>{post.summary}</Text><View className='post-bottom'><View><Text className='post-price'>{post.price}<Text>{post.unit}</Text></Text><Text className={`response-note ${post.response.includes('缺') ? 'urgent' : ''}`}>◍ {post.response}</Text></View><View className='contact-button' onClick={() => showNotice(i === 2 ? '报名入口即将接入' : '联系入口即将接入')}>{i === 2 ? '我要报名' : '联系他'} ↗</View></View></View></View>; })}</View></View>}
+        {loadError ? <View className='feed-error'><Text>信息服务暂时不可用</Text><Text onClick={() => Taro.reLaunch({ url: '/pages/home/index' })}>重新加载 ↻</Text></View> : <View className='feed-layout'><View className='feed-list'>{posts.map((post, i) => { const saved = favoriteIds.has(post.id); return <View key={post.id} className={`post-card ${i === 0 ? 'featured-post' : ''}`} onClick={() => go(`/pages/detail/index?id=${encodeURIComponent(post.id)}`)}><View className={`post-image image-${post.tone}`}>{post.image ? <Image className='post-photo' src={post.image} mode='aspectFill' /> : <Text className='post-art'>{post.tone === 'tools' ? '农机具' : '下午急招'}</Text>}<View className='post-image-shade' /><Text className={`post-label label-${post.label}`}>{post.label}</Text><View className={`save-button ${saved ? 'saved' : ''}`} role='button' aria-label={saved ? '取消收藏' : '收藏'} aria-pressed={saved} onClick={(event) => { event.stopPropagation(); void handleFavorite(post.id); }}><Text className='bookmark-glyph' /></View></View><View className='post-body'><View className='post-meta'><Text>{post.type}</Text><Text>{post.age}</Text></View><Text className='post-title'>{post.title}</Text><Text className='post-summary'>{post.summary}</Text><View className='post-bottom'><View><Text className='post-price'>{post.price}<Text>{post.unit}</Text></Text><Text className={`response-note ${post.response.includes('缺') ? 'urgent' : ''}`}>◍ {post.response}</Text></View><View className='contact-button' onClick={(event) => { event.stopPropagation(); showNotice(i === 2 ? '报名入口即将接入' : '联系入口即将接入'); }}>{i === 2 ? '我要报名' : '联系他'} ↗</View></View></View></View>; })}</View></View>}
         <View className='latest-side-grid'><View className='side-card scene-card'><Text className='section-kicker'>今日提醒</Text><Text className='side-icon'>☼</Text><Text className='side-title'>赶集日快到了</Text><Text className='side-copy'>本周六城关集市，已有 12 条助农信息。现在发布，周末更容易被看见。</Text><View className='outline-button' onClick={() => go('/pages/publish/index')}>发布一条信息 ↗</View></View><View className='side-card trust-card'><Text className='section-kicker'>先看一眼</Text><Text className='side-icon'>♢</Text><Text className='side-title'>遇到“先交钱”怎么办？</Text><Text className='safety-item'>不交押金、保证金、服装费</Text><Text className='safety-item'>不扫陌生二维码，不点陌生链接</Text><Text className='safety-item'>平台客服不会索要验证码</Text><Text className='ghost-link' onClick={() => showNotice('防骗指南已打开')}>打开防骗指南 →</Text></View></View>
       </View>
 
-      <View className='mobile-bottom-nav'><View className='mobile-nav-item active'><Text>⌂</Text><Text>首页</Text></View><View className='mobile-nav-item' onClick={() => go('/pages/explore/index')}><Text>◌</Text><Text>逛一逛</Text></View><View className='mobile-nav-item mobile-publish' onClick={() => go('/pages/publish/index')}><Text className='publish-orb'>＋</Text><Text>发布</Text></View><View className='mobile-nav-item' onClick={() => showNotice('消息中心正在接入')}><Text>◍</Text><Text>消息</Text></View><View className='mobile-nav-item' onClick={() => showNotice('个人中心正在接入')}><Text>◉</Text><Text>我的</Text></View></View>
+      <View className='mobile-bottom-nav'><View className='mobile-nav-item active'><Text>⌂</Text><Text>首页</Text></View><View className='mobile-nav-item' onClick={() => go('/pages/explore/index')}><Text>◌</Text><Text>逛一逛</Text></View><View className='mobile-nav-item mobile-publish' onClick={() => go('/pages/publish/index')}><Text className='publish-orb'>＋</Text><Text>发布</Text></View><View className='mobile-nav-item' onClick={() => go('/pages/messages/index')}><Text>◍</Text><Text>消息</Text></View><View className='mobile-nav-item' onClick={() => go('/pages/mine/index')}><Text>◉</Text><Text>我的</Text></View></View>
       {notice ? <Text className='sr-only'>{notice}</Text> : null}
     </View>
   );

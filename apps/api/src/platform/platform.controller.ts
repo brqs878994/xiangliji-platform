@@ -26,6 +26,12 @@ export class PlatformController {
     return post;
   }
 
+  @Get('me/posts')
+  listMyPosts(@Query('userId') userId?: string) {
+    if (!userId) throw new HttpException({ code: 'login_required', message: '登录后才能查看我的信息' }, HttpStatus.UNAUTHORIZED);
+    return { items: this.repository.listUserPosts(userId) };
+  }
+
   @Post('posts/drafts')
   createDraft(@Body() body: DraftBody) {
     if (!body.userId || !body.title?.trim() || !body.category?.trim() || !body.townCode?.trim() || !body.body?.trim()) {
@@ -98,5 +104,44 @@ export class PlatformController {
     const response = this.repository.removeResponse(id, userId, type);
     if (!response) throw new HttpException({ code: 'not_found', message: '收藏记录不存在' }, HttpStatus.NOT_FOUND);
     return response;
+  }
+
+  @Post('posts/:id/status')
+  updatePostStatus(@Param('id') id: string, @Body() body: { userId?: string; status?: 'closed' | 'expired'; confirmed?: boolean }) {
+    if (!body.userId) throw new HttpException({ code: 'login_required', message: '登录后才能更新信息状态' }, HttpStatus.UNAUTHORIZED);
+    if (body.confirmed !== true) throw new HttpException({ code: 'confirmation_required', message: '状态更新需要确认' }, HttpStatus.BAD_REQUEST);
+    if (!body.status) throw new HttpException({ code: 'invalid_request', message: 'status 不能为空' }, HttpStatus.BAD_REQUEST);
+    const post = this.repository.updatePostStatus(id, body.userId, body.status);
+    if (!post) throw new HttpException({ code: 'not_found', message: '信息不存在或无权操作' }, HttpStatus.NOT_FOUND);
+    return post;
+  }
+
+  @Post('reports')
+  createReport(@Body() body: { postId?: string; userId?: string; reason?: string }) {
+    if (!body.postId || !body.userId || !body.reason?.trim()) throw new HttpException({ code: 'invalid_request', message: 'postId、userId、reason 均不能为空' }, HttpStatus.BAD_REQUEST);
+    const report = this.repository.createReport(body.postId, body.userId, body.reason);
+    if (!report) throw new HttpException({ code: 'not_found', message: '信息不存在' }, HttpStatus.NOT_FOUND);
+    return report;
+  }
+
+  @Get('conversations')
+  listConversations(@Query('userId') userId?: string) {
+    if (!userId) throw new HttpException({ code: 'login_required', message: '登录后才能查看消息' }, HttpStatus.UNAUTHORIZED);
+    return { items: this.repository.listConversations(userId) };
+  }
+
+  @Get('conversations/:id/messages')
+  listMessages(@Param('id') id: string, @Query('userId') userId?: string) {
+    if (!userId) throw new HttpException({ code: 'login_required', message: '登录后才能查看消息' }, HttpStatus.UNAUTHORIZED);
+    return { items: this.repository.listMessages(id, userId) };
+  }
+
+  @Post('conversations/:id/messages')
+  sendMessage(@Param('id') id: string, @Body() body: { userId?: string; content?: string }) {
+    if (!body.userId) throw new HttpException({ code: 'login_required', message: '登录后才能发送消息' }, HttpStatus.UNAUTHORIZED);
+    if (!body.content?.trim()) throw new HttpException({ code: 'invalid_request', message: '消息内容不能为空' }, HttpStatus.BAD_REQUEST);
+    const message = this.repository.sendMessage(id, body.userId, body.content);
+    if (!message) throw new HttpException({ code: 'not_found', message: '会话不存在或无权操作' }, HttpStatus.NOT_FOUND);
+    return message;
   }
 }
