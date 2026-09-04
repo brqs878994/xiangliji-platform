@@ -17,4 +17,4 @@ Thumbs.db
 output/
 __pycache__/
 .playwright-cli/
-
+infra/data/

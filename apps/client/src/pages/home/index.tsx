@@ -31,6 +31,7 @@ export default function HomePage() {
   const [recording, setRecording] = useState(false);
   const [notice, setNotice] = useState('');
   const [posts, setPosts] = useState(initialPosts);
+  const [loadError, setLoadError] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -50,12 +51,13 @@ export default function HomePage() {
         image: index === 0 ? marketBasket : undefined,
       }));
       if (disposed) return;
+      setLoadError(false);
       setPosts(nextPosts);
       return Promise.all(nextPosts.map((post) => getResponses(post.id).catch(() => ({ items: [] })))).then((responses) => {
         if (disposed) return;
         setFavoriteIds(new Set(responses.flatMap((result) => result.items).filter((item) => item.userId === currentUserId && item.type === 'favorite').map((item) => item.postId)));
       });
-    }).catch(() => setPosts(initialPosts));
+    }).catch(() => { setPosts([]); setLoadError(true); });
     return () => { disposed = true; };
   }, []);
 
@@ -125,7 +127,7 @@ export default function HomePage() {
         <View className='category-grid'>{categories.map((item) => <View key={item.title} className={`category-card category-${item.tone}`} onClick={() => go(`/pages/explore/index?category=${encodeURIComponent(item.title)}`)}><Text className='category-icon'>{item.icon}</Text><View><Text className='category-title'>{item.title}</Text><Text className='category-subtitle'>{item.subtitle}</Text></View><Text className='category-arrow'>↗</Text></View>)}</View>
 
         <View className='section-heading feed-heading'><View><Text className='section-kicker'>刚刚发生</Text><Text className='section-title'>本镇最新</Text></View><View className='feed-controls'>{['综合', '最新', '最近'].map((item, i) => <Text key={item} className={`filter-chip ${i === 0 ? 'active' : ''}`} onClick={() => showNotice(`${item}排序已切换`)}>{item}</Text>)}</View></View>
-        <View className='feed-layout'><View className='feed-list'>{posts.map((post, i) => { const saved = favoriteIds.has(post.id); return <View key={post.id} className={`post-card ${i === 0 ? 'featured-post' : ''}`}><View className={`post-image image-${post.tone}`}>{post.image ? <Image className='post-photo' src={post.image} mode='aspectFill' /> : <Text className='post-art'>{post.tone === 'tools' ? '农机具' : '下午急招'}</Text>}<View className='post-image-shade' /><Text className={`post-label label-${post.label}`}>{post.label}</Text><View className={`save-button ${saved ? 'saved' : ''}`} role='button' aria-label={saved ? '取消收藏' : '收藏'} aria-pressed={saved} onClick={() => void handleFavorite(post.id)}><Text className='bookmark-glyph' /></View></View><View className='post-body'><View className='post-meta'><Text>{post.type}</Text><Text>{post.age}</Text></View><Text className='post-title'>{post.title}</Text><Text className='post-summary'>{post.summary}</Text><View className='post-bottom'><View><Text className='post-price'>{post.price}<Text>{post.unit}</Text></Text><Text className={`response-note ${post.response.includes('缺') ? 'urgent' : ''}`}>◍ {post.response}</Text></View><View className='contact-button' onClick={() => showNotice(i === 2 ? '报名入口即将接入' : '联系入口即将接入')}>{i === 2 ? '我要报名' : '联系他'} ↗</View></View></View></View>; })}</View></View>
+        {loadError ? <View className='feed-error'><Text>信息服务暂时不可用</Text><Text onClick={() => Taro.reLaunch({ url: '/pages/home/index' })}>重新加载 ↻</Text></View> : <View className='feed-layout'><View className='feed-list'>{posts.map((post, i) => { const saved = favoriteIds.has(post.id); return <View key={post.id} className={`post-card ${i === 0 ? 'featured-post' : ''}`}><View className={`post-image image-${post.tone}`}>{post.image ? <Image className='post-photo' src={post.image} mode='aspectFill' /> : <Text className='post-art'>{post.tone === 'tools' ? '农机具' : '下午急招'}</Text>}<View className='post-image-shade' /><Text className={`post-label label-${post.label}`}>{post.label}</Text><View className={`save-button ${saved ? 'saved' : ''}`} role='button' aria-label={saved ? '取消收藏' : '收藏'} aria-pressed={saved} onClick={() => void handleFavorite(post.id)}><Text className='bookmark-glyph' /></View></View><View className='post-body'><View className='post-meta'><Text>{post.type}</Text><Text>{post.age}</Text></View><Text className='post-title'>{post.title}</Text><Text className='post-summary'>{post.summary}</Text><View className='post-bottom'><View><Text className='post-price'>{post.price}<Text>{post.unit}</Text></Text><Text className={`response-note ${post.response.includes('缺') ? 'urgent' : ''}`}>◍ {post.response}</Text></View><View className='contact-button' onClick={() => showNotice(i === 2 ? '报名入口即将接入' : '联系入口即将接入')}>{i === 2 ? '我要报名' : '联系他'} ↗</View></View></View></View>; })}</View></View>}
         <View className='latest-side-grid'><View className='side-card scene-card'><Text className='section-kicker'>今日提醒</Text><Text className='side-icon'>☼</Text><Text className='side-title'>赶集日快到了</Text><Text className='side-copy'>本周六城关集市，已有 12 条助农信息。现在发布，周末更容易被看见。</Text><View className='outline-button' onClick={() => go('/pages/publish/index')}>发布一条信息 ↗</View></View><View className='side-card trust-card'><Text className='section-kicker'>先看一眼</Text><Text className='side-icon'>♢</Text><Text className='side-title'>遇到“先交钱”怎么办？</Text><Text className='safety-item'>不交押金、保证金、服装费</Text><Text className='safety-item'>不扫陌生二维码，不点陌生链接</Text><Text className='safety-item'>平台客服不会索要验证码</Text><Text className='ghost-link' onClick={() => showNotice('防骗指南已打开')}>打开防骗指南 →</Text></View></View>
       </View>
 

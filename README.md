@@ -26,9 +26,11 @@ pnpm dev:h5
 pnpm build:weapp
 ```
 
+`pnpm dev:h5` 会先构建 H5、生成入口页，再在 `http://127.0.0.1:10086` 提供静态服务；需要热更新时使用 `pnpm --filter @xiangliji/client dev:h5:watch`。
+
 ## 后台 MVP
 
-当前后台使用 NestJS 模块化单体和内存 Repository，接口已经覆盖分类、乡镇、信息列表、发布草稿、审核、响应和 AI Provider 路由。数据重启后会恢复种子数据，后续只替换 Repository 实现即可接入 MySQL。
+当前后台使用 NestJS 模块化单体和 Repository 接口，开发环境默认使用带 JSON 持久化的本地 Repository，接口已经覆盖分类、乡镇、信息列表、发布草稿、审核、响应和 AI Provider 路由。运行数据写入 `infra/data/platform.json`（已加入 Git 忽略），API 重启后仍可查询；生产环境可在不改 Controller 的前提下替换为 MySQL Repository。
 
 API 地址：`http://127.0.0.1:3000`
 
@@ -43,7 +45,7 @@ API 地址：`http://127.0.0.1:3000`
 - `GET /admin/stats`
 - `GET/POST/PATCH /admin/ai/providers`、`GET /admin/ai/routes`、`PUT /admin/ai/routes/:capability`
 
-发布和审核动作都要求显式确认；Provider 的 API Key 只在服务端保存，接口返回掩码值。
+普通信息提交后立即展示，同时生成后台审核记录；审核驳回时自动下架。发布和审核动作都要求显式确认；Provider 的 API Key 只在服务端保存，接口返回掩码值。
 
 如果 `pnpm --filter @xiangliji/api build` 触发 `magic-string` ESM 工具链错误，可使用仓库当前可用的编译方式：
 
