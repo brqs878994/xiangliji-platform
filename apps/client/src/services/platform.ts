@@ -23,7 +23,12 @@ export async function getCategories(): Promise<PlatformCategory[]> {
 }
 
 export async function getPosts(filters: { townCode?: string; category?: string; keyword?: string } = {}): Promise<PlatformPost[]> {
-  return (await requestJson<{ items: PlatformPost[] }>(`/posts?${new URLSearchParams(filters).toString()}`)).items;
+  const query = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) query.set(key, value);
+  });
+  const suffix = query.toString() ? `?${query.toString()}` : '';
+  return (await requestJson<{ items: PlatformPost[] }>(`/posts${suffix}`)).items;
 }
 
 export interface DraftResponse { id: string; title: string; category: string; townCode: string; body: string; validDays: number; status: string; userId: string; }
